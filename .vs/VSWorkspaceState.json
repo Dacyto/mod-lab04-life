@@ -1,8 +1,9 @@
 {
   "ExpandedNodes": [
     "",
-    "\\Life"
+    "\\Life",
+    "\\Test"
   ],
-  "SelectedNode": "\\Life\\Program.cs",
+  "SelectedNode": "\\GameOfLife.sln",
   "PreviewInSolutionExplorer": false
 }

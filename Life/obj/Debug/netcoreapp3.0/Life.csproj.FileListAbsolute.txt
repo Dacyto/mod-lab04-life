@@ -12,3 +12,5 @@ C:\Users\Владимир\Source\Repos\mod-lab04-life\Life\obj\Debug\netcoreapp3
 C:\Users\Владимир\Source\Repos\mod-lab04-life\Life\obj\Debug\netcoreapp3.0\Life.dll
 C:\Users\Владимир\Source\Repos\mod-lab04-life\Life\obj\Debug\netcoreapp3.0\Life.pdb
 C:\Users\Владимир\Source\Repos\mod-lab04-life\Life\obj\Debug\netcoreapp3.0\Life.genruntimeconfig.cache
+C:\Users\Владимир\source\repos\mod-lab04-life\Life\bin\Debug\netcoreapp3.0\Newtonsoft.Json.dll
+C:\Users\Владимир\source\repos\mod-lab04-life\Life\obj\Debug\netcoreapp3.0\Life.csproj.CopyComplete

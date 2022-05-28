@@ -151,7 +151,7 @@ namespace cli_life
         }
         public void LoadConfig(String path)
         {
-            data = JsonSerializer.Deserialize<Data>(File.ReadAllText(path));
+            data = (Data)JsonConvert.DeserializeObject(File.ReadAllText(path));
         }
 
         public void LoadState(Board board, String path)
@@ -229,7 +229,7 @@ namespace cli_life
         static void Main(string[] args)
         {
             Configuration configuration = new Configuration();
-            configuration.LoadConfig("mod-task04-life\\Life\\Parameters.json");
+            configuration.LoadConfig("..//..//..//..//Life\\Parameters.json");
             Reset(configuration);
             configuration.LoadState(board, "mod-task04-life\\Life\\save.txt");
             while (true)
