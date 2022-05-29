@@ -4,16 +4,25 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
-using Newtonsoft.Json;
 using System.IO;
+using System.Text.Json;
 
-namespace cli_life
+namespace Life
 {
+    public class Data
+    {
+        public int width { get; set; }
+        public int height { get; set; }
+        public int cellSize { get; set; }
+        public double liveDensity { get; set; }
+    }
+
     public class Cell
     {
         public bool IsAlive;
         public readonly List<Cell> neighbors = new List<Cell>();
         private bool IsAliveNext;
+
         public void DetermineNextLiveState()
         {
             int liveNeighbors = neighbors.Where(x => x.IsAlive).Count();
@@ -22,6 +31,7 @@ namespace cli_life
             else
                 IsAliveNext = liveNeighbors == 3;
         }
+
         public void Advance()
         {
             IsAlive = IsAliveNext;
@@ -31,50 +41,55 @@ namespace cli_life
     {
         public readonly Cell[,] Cells;
         public readonly int CellSize;
-        public int Height
-        {
-            get
-            {
-                return Rows * CellSize;
-            }
-        }
-        public int Width
-        {
-            get
-            {
-                return Columns * CellSize;
-            }
-        }
-        public int Columns
-        {
-            get
-            {
-                return Cells.GetLength(0);
-            }
-        }
-        public int Rows
-        {
-            get
-            {
-                return Cells.GetLength(1);
-            }
-        }
-        public Board(Configuration configuration)
-        {
-            CellSize = configuration.CellSize;
 
-            Cells = new Cell[configuration.Width / configuration.CellSize, configuration.Height / configuration.CellSize];
+        public int Columns { get { return Cells.GetLength(0); } }
+        public int Rows { get { return Cells.GetLength(1); } }
+        public int Width { get { return Columns * CellSize; } }
+        public int Height { get { return Rows * CellSize; } }
+
+        public Board(int width, int height, int cellSize, double liveDensity)
+        {
+            CellSize = cellSize;
+
+            Cells = new Cell[width / CellSize, height / CellSize];
             for (int x = 0; x < Columns; x++)
                 for (int y = 0; y < Rows; y++)
                     Cells[x, y] = new Cell();
 
             ConnectNeighbors();
-            Randomize(configuration.LiveDensity);
         }
 
         readonly Random rand = new Random();
-        public void Randomize(double liveDensity)
+
+        public void GetCellsFromFile(string filename)
         {
+            string[] s = File.ReadAllLines(filename);
+            char[][] arr = new char[Rows][];
+            for (int i = 0; i < s.Length; i++)
+            {
+                arr[i] = new char[Columns];
+                for (int j = 0; j < Rows; j++)
+                {
+                    arr[i][j] = s[i][j];
+                }
+            }
+            for (int i = 0; i < Rows; i++)
+            {
+                for (int j = 0; j < Columns; j++)
+                {
+                    if (arr[i][j] == '*')
+                    {
+                        Cells[i, j].IsAlive = true;
+                    }
+                }
+            }
+        }
+
+        public void Randomize(string filename)
+        {
+            string json = File.ReadAllText(filename);
+            Data data = JsonSerializer.Deserialize<Data>(json);
+            double liveDensity = data.liveDensity;
             foreach (var cell in Cells)
                 cell.IsAlive = rand.NextDouble() < liveDensity;
         }
@@ -86,6 +101,7 @@ namespace cli_life
             foreach (var cell in Cells)
                 cell.Advance();
         }
+
         private void ConnectNeighbors()
         {
             for (int x = 0; x < Columns; x++)
@@ -109,114 +125,99 @@ namespace cli_life
                 }
             }
         }
-    }
-    public class Configuration
-    {
-        struct Data
-        {
-            public int Height { get; set; }
-            public int Width { get; set; }
-            public int CellSize { get; set; }
-            public double LiveDensity { get; set; }
-        }
-        Data data;
-        public int Height
-        {
-            get
-            {
-                return data.Height;
-            }
-        }
-        public int Width
-        {
-            get
-            {
-                return data.Width;
-            }
-        }
 
-        public int CellSize
+        public int BlocksAmount()
         {
-            get
+            int num = 0;
+            for (int i = 1; i < Rows - 2; i++)
             {
-                return data.CellSize;
-            }
-        }
-        public double LiveDensity
-        {
-            get
-            {
-                return data.LiveDensity;
-            }
-        }
-        public void LoadConfig(String path)
-        {
-            data = (Data)JsonConvert.DeserializeObject(File.ReadAllText(path));
-        }
-
-        public void LoadState(Board board, String path)
-        {
-            String buf = File.ReadAllText(path);
-            int i = 0;
-            int j = -1;
-            foreach (char c in buf)
-            {
-                j += 1;
-                if (c == '*')
+                for (int j = 1; j < Columns - 2; j++)
                 {
-                    board.Cells[j, i].IsAlive = true;
-                }
-                if (c == ' ')
-                {
-                    board.Cells[j, i].IsAlive = false;
-                }
-                if (c == '\n')
-                {
-                    i += 1;
-                    j = -1;
-                }
-            }
-        }
-        public void SaveState(Board board, String path)
-        {
-            String buf = "";
-            for (int row = 0; row < board.Rows; row++)
-            {
-                for (int col = 0; col < board.Columns; col++)
-                {
-                    var cell = board.Cells[col, row];
-                    if (cell.IsAlive)
+                    if (Cells[j, i].IsAlive && Cells[j, i + 1].IsAlive && Cells[j + 1, i].IsAlive && Cells[j + 1, i + 1].IsAlive)
                     {
-                        buf += "*";
-                    }
-                    else
-                    {
-                        buf += " ";
+                        if (!Cells[j - 1, i - 1].IsAlive && !Cells[j, i - 1].IsAlive && !Cells[j + 1, i - 1].IsAlive && !Cells[j + 2, i - 1].IsAlive
+                        && !Cells[j - 1, i + 2].IsAlive && !Cells[j, i + 2].IsAlive && !Cells[j + 1, i + 2].IsAlive && !Cells[j + 2, i + 2].IsAlive
+                        && !Cells[j - 1, i].IsAlive && !Cells[j + 2, i].IsAlive && !Cells[j - 1, i + 2].IsAlive && !Cells[j + 2, i + 2].IsAlive)
+                        {
+                            num++;
+                        }
                     }
                 }
-                buf += "\n";
             }
-            File.WriteAllText(path, buf);
+            return num;
+        }
+
+        public int BoxesAmount()
+        {
+            int num = 0;
+            for (int i = 0; i < Rows - 2; i++)
+            {
+                for (int j = 1; j < Columns - 1; j++)
+                {
+                    if (Cells[j, i].IsAlive && Cells[j - 1, i + 1].IsAlive && Cells[j + 1, i + 1].IsAlive && Cells[j, i + 2].IsAlive
+                    && !Cells[j, i + 1].IsAlive && !Cells[j - 1, i].IsAlive && !Cells[j + 1, i].IsAlive && !Cells[j - 1, i + 2].IsAlive && !Cells[j + 1, i + 2].IsAlive)
+                    {
+                        num++;
+                    }
+                }
+            }
+            return num;
+        }
+
+        public int HivesAmount()
+        {
+            int num = 0;
+            for (int i = 0; i < Rows - 3; i++)
+            {
+                for (int j = 1; j < Columns - 1; j++)
+                {
+                    if (Cells[j, i].IsAlive && Cells[j - 1, i + 1].IsAlive && Cells[j - 1, i + 2].IsAlive
+                    && Cells[j, i + 3].IsAlive && Cells[j + 1, i + 1].IsAlive && Cells[j + 1, i + 2].IsAlive
+                    && !Cells[j, i + 1].IsAlive && !Cells[j, i + 2].IsAlive && !Cells[j - 1, i].IsAlive
+                    && !Cells[j + 1, i].IsAlive && !Cells[j - 1, i + 3].IsAlive && !Cells[j + 1, i + 3].IsAlive)
+                    {
+                        num++;
+                    }
+                }
+            }
+            return num;
+        }
+
+        public int SymmetryFiguresAmount()
+        {
+            return BoxesAmount() + HivesAmount() + BlocksAmount();
         }
     }
 
-    class Program
+    public class LifeGame
     {
         static Board board;
-        static private void Reset(Configuration configuration)
+
+        public int Reset(string filename, string read_from)
         {
-            board = new Board(configuration);
+            string json = File.ReadAllText(read_from);
+            Data data = JsonSerializer.Deserialize<Data>(json);
+            int width = data.width;
+            int height = data.height;
+            int cellSize = data.cellSize;
+            double liveDensity = data.liveDensity;
+            board = new Board(width, height, cellSize, liveDensity);
+            board.GetCellsFromFile(filename);
+            return board.Width * board.Height;
         }
-        static void Render()
+
+        public int Render()
         {
-            for (int row = 0; row < board.Rows; row++)
+            int count = 0;
+            for (int i = 0; i < board.Rows; i++)
             {
-                for (int col = 0; col < board.Columns; col++)
+                for (int j = 0; j < board.Columns; j++)
                 {
-                    var cell = board.Cells[col, row];
+                    var cell = board.Cells[j, i];
                     if (cell.IsAlive)
                     {
                         Console.Write('*');
+                        count++;
                     }
                     else
                     {
@@ -225,21 +226,87 @@ namespace cli_life
                 }
                 Console.Write('\n');
             }
+            return count;
         }
-        static void Main(string[] args)
+
+        public void WriteToFile()
         {
-            Configuration configuration = new Configuration();
-            configuration.LoadConfig("..//..//..//..//Life\\Parameters.json");
-            Reset(configuration);
-            configuration.LoadState(board, "mod-task04-life\\Life\\save.txt");
+            char[][] lines = new char[20][];
+            for (int k = 0; k < 20; k++)
+            {
+                lines[k] = new char[50];
+            }
+            for (int i = 0; i < board.Rows; i++)
+            {
+                for (int j = 0; j < board.Columns; j++)
+                {
+                    var cell = board.Cells[j, i];
+                    if (cell.IsAlive)
+                    {
+                        lines[i][j] = '*';
+                    }
+                    else
+                    {
+                        lines[i][j] = ' ';
+                    }
+                }
+            }
+            File.Create("../../../../user_stuff/res.txt").Close();
+            using StreamWriter writer = new StreamWriter("../../../../user_stuff/res.txt", true);
+            for (int i = 0; i < lines.Length; i++)
+            {
+                string str = new string(lines[i]);
+                writer.WriteLineAsync(str);
+            }
+
+        }
+        public (int allCells, int aliveCells, int Iters) Run(string filename, string read_from)
+        {
+            int[] list = { -1, -1, -1, -1, -1 };
+            int iters = 0;
+            int alive_cells = 0;
+            int all_cells = 0;
+
+            all_cells = Reset(filename, read_from);
+
             while (true)
             {
+                iters++;
                 Console.Clear();
-                Render();
-                configuration.SaveState(board, "C:\\LabsMipis\\mip4\\mod-task04-life\\Life\\save.txt");
+                alive_cells = Render();
+                list[iters % 5] = alive_cells;
+                if ((list[0] == list[1]) && (list[0] == list[2]) && (list[0] == list[3]) && (list[0] == list[4]))
+                {
+                    break;
+                }
                 board.Advance();
-                Thread.Sleep(1000);
+                Thread.Sleep(100);
             }
+
+            Console.WriteLine("\n\tКоличество блоков: " + board.BlocksAmount());
+            Console.WriteLine("\tКоличество ящиков: " + board.BoxesAmount());
+            Console.WriteLine("\tКоличество ульев: " + board.HivesAmount());
+
+            (int, int, int) cells = (all_cells, alive_cells, iters - 2);
+            return cells;
+        }
+    }
+
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            LifeGame life = new LifeGame();
+            var cells = life.Run("../../../../user_stuff/example1.txt", "../../../../user_stuff/user_settings.json");
+
+            Console.Write("\n\tКоличество живых клеток: " + cells.aliveCells);
+            Console.Write("\n\tКоличество мертвых клеток: " + (cells.allCells - cells.aliveCells));
+            Console.Write("\n\tПлотность живых клеток: " + ((double)cells.aliveCells / cells.allCells));
+            Console.Write("\n\tПлотность живых клеток: " + ((double)(cells.allCells - cells.aliveCells) / cells.allCells));
+
+            life.WriteToFile();
+
+            Console.Write("\n\n\tСтабильность на " + (cells.Iters) + " итерации.\n\n");
         }
     }
 }

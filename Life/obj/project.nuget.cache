@@ -1,14 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "mkKUn/QRFUL0tC6lZ9QvfJUnOyV4blPynbCjYaePDnxbcezCILKs/fSjYagoveD+sUEpy6O52NfgMj1ef8sd/w==",
+  "dgSpecHash": "fxrHDMYfSeSKQXdirvuCX/0Ip0548r285Ag22Zevy02CJ0et4dLGbTZwqSmkjESWZAK7tR8iyPJQkZvPpolsOQ==",
   "success": true,
   "projectFilePath": "C:\\Users\\Владимир\\source\\repos\\mod-lab04-life\\Life\\Life.csproj",
-  "expectedPackageFiles": [
-    "C:\\Users\\Владимир\\.nuget\\packages\\newtonsoft.json\\13.0.1\\newtonsoft.json.13.0.1.nupkg.sha512",
-    "C:\\Users\\Владимир\\.nuget\\packages\\microsoft.netcore.app.host.win-x64\\3.0.3\\microsoft.netcore.app.host.win-x64.3.0.3.nupkg.sha512",
-    "C:\\Users\\Владимир\\.nuget\\packages\\microsoft.aspnetcore.app.ref\\3.0.1\\microsoft.aspnetcore.app.ref.3.0.1.nupkg.sha512",
-    "C:\\Users\\Владимир\\.nuget\\packages\\microsoft.windowsdesktop.app.ref\\3.0.0\\microsoft.windowsdesktop.app.ref.3.0.0.nupkg.sha512",
-    "C:\\Users\\Владимир\\.nuget\\packages\\microsoft.netcore.app.ref\\3.0.0\\microsoft.netcore.app.ref.3.0.0.nupkg.sha512"
-  ],
+  "expectedPackageFiles": [],
   "logs": []
 }
