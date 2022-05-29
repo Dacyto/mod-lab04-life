@@ -19,7 +19,7 @@ namespace StringLibraryTest
         {
             LifeGame life = new LifeGame();
             var cells = life.Run("../../../../user_stuff/example3.txt", "../../../../user_stuff/user_settings.json");
-            Assert.AreEqual(cells.aliveCells, 12);
+            Assert.AreEqual(cells.aliveCells, 4);
         }
 
         [TestMethod]
@@ -44,6 +44,22 @@ namespace StringLibraryTest
             Board board = new Board(50, 20, 1, 0.5);
             board.GetCellsFromFile("../../../../user_stuff/hive.txt");
             Assert.AreEqual(board.HivesAmount(), 3);
+        }
+
+        [TestMethod]
+        public void TestMethod6()
+        {
+            LifeGame life = new LifeGame();
+            var cells = life.Run("../../../../user_stuff/example2.txt", "../../../../user_stuff/user_settings.json");
+            Assert.AreEqual(cells.aliveCells, 6);
+        }
+
+        [TestMethod]
+        public void TestMethod7()
+        {
+            Board board = new Board(50, 20, 1, 0.5);
+            board.GetCellsFromFile("../../../../user_stuff/example2.txt");
+            Assert.AreEqual(board.HivesAmount(), 1);
         }
     }
 }
