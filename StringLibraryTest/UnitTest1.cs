@@ -10,7 +10,7 @@ namespace StringLibraryTest
         public void TestMethod1()
         {
             LifeGame life = new LifeGame();
-            var cells = life.Run("example1.txt", "user_settings.json");
+            var cells = life.Run("../../../../user_stuff/example1.txt", "../../../../user_stuff/user_settings.json");
             Assert.AreEqual(cells.Iters, 71);
         }
 
