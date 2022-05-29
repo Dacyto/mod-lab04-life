@@ -61,5 +61,13 @@ namespace StringLibraryTest
             board.GetCellsFromFile("../../../../user_stuff/example2.txt");
             Assert.AreEqual(board.HivesAmount(), 1);
         }
+
+        [TestMethod]
+        public void TestMethod8()
+        {
+            Board board = new Board(50, 20, 1, 0.5);
+            board.GetCellsFromFile("../../../../user_stuff/example2.txt");
+            Assert.AreEqual(board.BoxesAmount(), 0);
+        }
     }
 }
