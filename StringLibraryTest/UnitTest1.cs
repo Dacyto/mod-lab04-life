@@ -51,7 +51,7 @@ namespace StringLibraryTest
         {
             LifeGame life = new LifeGame();
             var cells = life.Run("../../../../user_stuff/example2.txt", "../../../../user_stuff/user_settings.json");
-            Assert.AreEqual(cells.aliveCells, 6);
+            Assert.AreEqual(cells.aliveCells, 24);
         }
 
         [TestMethod]
